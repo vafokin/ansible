@@ -1,0 +1,56 @@
+---
+  - name: vars include
+    include_vars:
+      file: ../variables/main.yml
+
+  - name: Define OS
+    include_tasks: "{{ ansible_facts['os_family'] }}.yml"
+
+  - name: add user
+    ansible.builtin.user:
+      name: Ansible
+      uid: 1005
+
+  - name: change hostname
+    ansible.builtin.hostname:
+      name: "{{ domain_name }}"
+
+  - name: add sites in /etc/hosts
+    ansible.builtin.lineinfile:
+      path: /etc/hosts
+      line: "{{ansible_ssh_host}} {{ansible_facts['hostname']}}"
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Start nginx
+    ansible.builtin.service:
+      name: nginx
+      enabled: yes
+      state: started
+
+  - name: create site directories
+    ansible.builtin.file:
+      path: /var/www/{{item}}/html
+      state: directory
+      mode: '0755'
+    loop: "{{sites_list}}"
+
+  - name: copy index.html
+    ansible.builtin.template:
+      src: templates/index.html.j2
+      dest: /var/www/{{item}}/html/index.html
+      owner: root
+      group: root
+    loop: "{{sites_list}}"
+
+  - name: copy default.conf
+    ansible.builtin.template:
+      src: templates/default.conf.j2
+      dest: /etc/nginx/conf.d/{{item}}.conf
+      owner: root
+      group: root
+    loop: "{{sites_list}}"
+    loop_control:
+      extended: yes
+    notify: reload nginx

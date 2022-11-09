@@ -1,0 +1,16 @@
+---   
+  - name: Install epel
+    yum:
+      name: epel-release
+      state: present
+
+  - name: Install nginx
+    yum:
+      name: 
+        - nginx-1.20.1-9.el7
+        - atop
+      state: present
+
+  - name: Set Timezone
+    timezone:
+      name: Asia/Tokyo

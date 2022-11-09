@@ -1,0 +1,11 @@
+  - name: Install nginx
+    apt:
+      name: 
+        - nginx=1.18.0-6.1+deb11u2
+        - atop
+      state: present
+      update_cache: yes
+ 
+  - name: Set Timezone
+    timezone:
+      name: Europe/Moscow

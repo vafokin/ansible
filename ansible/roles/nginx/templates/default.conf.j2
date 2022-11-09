@@ -1,0 +1,18 @@
+upstream test{{ansible_loop.index}} {
+{% for i in upstream %} 
+  server {{i}};
+{% endfor %}
+  server {{ansible_default_ipv4.address}};
+}
+
+
+server {
+  listen 80;
+  listen [::]:80;
+  server_name {{item}};
+  location / {
+    root /var/www/{{item}};
+    index index.html;
+    try_files $uri /index.html;
+  }
+}
